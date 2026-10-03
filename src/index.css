@@ -1,0 +1,116 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---------- Airi design tokens ---------- */
+:root {
+  --font-serif: 'Newsreader', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', Menlo, monospace;
+
+  --bg: #faf9f7;
+  --surface: #ffffff;
+  --surface-2: #f4f2ef;
+  --ink: #1c1917;
+  --muted: #6b6560;
+  --line: #e7e3de;
+  --accent: #dc2626;
+  --accent-ink: #b91c1c;
+  --accent-soft: #fef2f2;
+  --ring: rgba(220, 38, 38, 0.35);
+  --shadow: 0 1px 2px rgba(28, 25, 23, 0.04), 0 4px 16px rgba(28, 25, 23, 0.05);
+  color-scheme: light;
+}
+
+:root.dark {
+  --bg: #0c0a09;
+  --surface: #171412;
+  --surface-2: #211d1a;
+  --ink: #f5f2ee;
+  --muted: #a8a09a;
+  --line: #2e2926;
+  --accent: #ef4444;
+  --accent-ink: #fca5a5;
+  --accent-soft: rgba(239, 68, 68, 0.12);
+  --ring: rgba(248, 113, 113, 0.45);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.35);
+  color-scheme: dark;
+}
+
+@layer base {
+  html, body, #root { min-height: 100vh; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    transition: background-color .25s ease, color .25s ease;
+  }
+  h1, h2, h3, h4 { color: var(--ink); text-wrap: balance; letter-spacing: -0.015em; }
+  p { text-wrap: pretty; }
+  input, select, textarea {
+    background: var(--surface);
+    color: var(--ink);
+    border-color: var(--line);
+  }
+  input::placeholder, textarea::placeholder { color: var(--muted); opacity: .8; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+  ::selection { background: var(--accent-soft); color: var(--accent-ink); }
+}
+
+/* ---------- Theme layer: remaps the original red-everywhere
+   utility classes onto tokens so every screen gets the new
+   look (and dark mode) without touching each component. ---------- */
+.bg-white, .bg-white\/98, .bg-white\/95, .bg-white\/90 { background-color: var(--surface); }
+.bg-red-50, .bg-red-50\/50, .bg-red-50\/70, .bg-rose-50 { background-color: var(--accent-soft); }
+.border-red-100, .border-red-200, .border-red-300, .border-rose-200 { border-color: var(--line); }
+.divide-red-100 > :not(:last-child), .divide-red-200 > :not(:last-child) { border-color: var(--line); }
+
+/* body copy & headings: ink. Red stays for icons, labels and actions */
+.text-red-700, .text-red-800, .text-red-900, .text-red-800\/85, .text-red-800\/80,
+.text-rose-700, .text-rose-800 { color: var(--ink); }
+.text-red-600\/70, .text-red-600\/80, .text-red-500, .text-red-400 { color: var(--muted); }
+.text-red-600 { color: var(--accent); }
+button.text-red-700, a.text-red-700, .hover\:text-red-700:hover { color: var(--accent-ink); }
+
+.shadow-xs, .shadow-sm, .shadow-md { box-shadow: var(--shadow); }
+.rounded-2xl.border { transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease; }
+button:not(:disabled), [role="button"] { cursor: pointer; }
+button:active:not(:disabled) { transform: scale(.985); }
+
+.font-serif { font-family: var(--font-serif); }
+.font-sans { font-family: var(--font-sans); }
+.font-mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+/* Optional style variants (Possible UIs viewer) */
+html[data-red-theme="terminal"] body { font-family: var(--font-mono); }
+html[data-red-theme="swiss"] :is(h1,h2,h3) { font-family: var(--font-sans); font-weight: 800; letter-spacing: -0.03em; }
+html[data-red-theme="editorial"] :is(h1,h2) { font-family: var(--font-serif); }
+html[data-red-theme="brutalist"] .border-red-200 { border-color: var(--accent); box-shadow: 2px 2px 0 var(--accent-ink); }
+
+/* Scrollbars */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--line); border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+/* Motion */
+@keyframes shimmer { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+@keyframes gradient-flow { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+@keyframes progress-stripes { from { background-position: 1rem 0; } to { background-position: 0 0; } }
+@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+@keyframes pulse-glow { 0%,100% { opacity: .85; } 50% { opacity: 1; } }
+.animate-shimmer { animation: shimmer 2s infinite linear; }
+.animate-gradient-flow { background-size: 200% 200%; animation: gradient-flow 6s ease infinite; }
+.animate-float { animation: float 3s ease-in-out infinite; }
+.animate-pulse-glow { animation: pulse-glow 2.5s ease-in-out infinite; }
+.progress-striped {
+  background-image: linear-gradient(45deg, rgba(255,255,255,.2) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.2) 50%, rgba(255,255,255,.2) 75%, transparent 75%);
+  background-size: 1rem 1rem;
+  animation: progress-stripes 1s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}
+
+* { -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
+.pb-safe { padding-bottom: env(safe-area-inset-bottom, 16px); }
