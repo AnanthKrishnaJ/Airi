@@ -68,10 +68,9 @@ export const AdminStudio: React.FC = () => {
   const [newQExplanation, setNewQExplanation] = useState('');
 
   // Import / Export State
-  const [importFormat, setImportFormat] = useState<'json' | 'csv' | 'pdf'>('json');
+  const [importFormat, setImportFormat] = useState<'json' | 'csv'>('json');
   const [importData, setImportData] = useState('');
   const [importMsg, setImportMsg] = useState<string | null>(null);
-  const [pdfFileName, setPdfFileName] = useState<string>('');
 
   useEffect(() => {
     loadStats();
@@ -213,35 +212,12 @@ export const AdminStudio: React.FC = () => {
     }
   };
 
-  const handlePdfUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    try {
-      const base64 = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(String(reader.result || ''));
-        reader.onerror = () => reject(new Error('Could not read PDF file'));
-        reader.readAsDataURL(file);
-      });
-
-      setPdfFileName(file.name);
-      const res = await importQuestions('pdf', { base64, filename: file.name });
-      setImportMsg(`Successfully imported ${res.importedCount} questions from PDF.`);
-      setImportData('');
-      loadStats();
-    } catch (err: any) {
-      setImportMsg(`PDF import error: ${err.message}`);
-    }
-  };
-
   // Handle Import
   const handleImportSubmit = async () => {
     try {
       const res = await importQuestions(importFormat, importData);
       setImportMsg(`Successfully imported ${res.importedCount} questions.`);
       setImportData('');
-      setPdfFileName('');
       loadStats();
     } catch (err: any) {
       setImportMsg(`Import error: ${err.message}`);
@@ -689,7 +665,7 @@ export const AdminStudio: React.FC = () => {
               Bulk import questions using JSON or CSV format. Schema validation is automatically enforced.
             </p>
 
-            <div className="flex items-center space-x-3 flex-wrap">
+            <div className="flex items-center space-x-3">
               <label className="text-xs font-bold text-red-700">Format:</label>
               <button
                 onClick={() => setImportFormat('json')}
@@ -707,53 +683,27 @@ export const AdminStudio: React.FC = () => {
               >
                 CSV
               </button>
-              <button
-                onClick={() => setImportFormat('pdf')}
-                className={`px-3 py-1 rounded-lg text-xs font-bold border cursor-pointer ${
-                  importFormat === 'pdf' ? 'bg-red-600 text-white border-red-600' : 'bg-white text-red-700 border-red-200 hover:bg-red-50'
-                }`}
-              >
-                PDF
-              </button>
             </div>
 
-            {importFormat === 'pdf' ? (
-              <div className="space-y-3">
-                <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-red-200 rounded-xl bg-red-50/40 cursor-pointer hover:border-red-400 transition">
-                  <Upload className="h-6 w-6 text-red-600 mb-2" />
-                  <span className="text-xs font-semibold text-red-700">Upload PDF question bank</span>
-                  <span className="text-[10px] text-red-600/80 mt-1">The app extracts questions and correct answers from the PDF.</span>
-                  <input type="file" accept="application/pdf" className="hidden" onChange={handlePdfUpload} />
-                </label>
-                {pdfFileName && (
-                  <div className="rounded-lg border border-red-200 bg-white px-3 py-2 text-xs text-red-700 font-mono">
-                    Selected file: {pdfFileName}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <textarea
-                rows={8}
-                placeholder={
-                  importFormat === 'json'
-                    ? '[\n  {\n    "topic": "Percentages",\n    "difficulty": "Medium",\n    "question": "What is 20% of 250?",\n    "options": ["40", "50", "60", "70"],\n    "correctOption": 1,\n    "explanation": "20/100 * 250 = 50"\n  }\n]'
-                    : 'Topic,Difficulty,Question,OptionA,OptionB,OptionC,OptionD,CorrectOption,Explanation\nPercentages,Medium,What is 20% of 250?,40,50,60,70,1,20/100 * 250 = 50'
-                }
-                value={importData}
-                onChange={e => setImportData(e.target.value)}
-                className="w-full p-3 rounded-xl border border-red-200 bg-white font-mono text-xs text-red-700 placeholder:text-red-300 focus:ring-2 focus:ring-red-500 focus:outline-none"
-              />
-            )}
+            <textarea
+              rows={8}
+              placeholder={
+                importFormat === 'json'
+                  ? '[\n  {\n    "topic": "Percentages",\n    "difficulty": "Medium",\n    "question": "What is 20% of 250?",\n    "options": ["40", "50", "60", "70"],\n    "correctOption": 1,\n    "explanation": "20/100 * 250 = 50"\n  }\n]'
+                  : 'Topic,Difficulty,Question,OptionA,OptionB,OptionC,OptionD,CorrectOption,Explanation\nPercentages,Medium,What is 20% of 250?,40,50,60,70,1,20/100 * 250 = 50'
+              }
+              value={importData}
+              onChange={e => setImportData(e.target.value)}
+              className="w-full p-3 rounded-xl border border-red-200 bg-white font-mono text-xs text-red-700 placeholder:text-red-300 focus:ring-2 focus:ring-red-500 focus:outline-none"
+            />
 
-            {importFormat !== 'pdf' && (
-              <button
-                onClick={handleImportSubmit}
-                disabled={!importData.trim()}
-                className="w-full py-2.5 rounded-lg bg-gradient-to-r from-red-600 via-rose-600 to-red-700 hover:from-red-700 text-white font-semibold text-xs shadow-xs transition disabled:opacity-50 cursor-pointer border border-red-500/30"
-              >
-                Parse & Import Questions
-              </button>
-            )}
+            <button
+              onClick={handleImportSubmit}
+              disabled={!importData.trim()}
+              className="w-full py-2.5 rounded-lg bg-gradient-to-r from-red-600 via-rose-600 to-red-700 hover:from-red-700 text-white font-semibold text-xs shadow-xs transition disabled:opacity-50 cursor-pointer border border-red-500/30"
+            >
+              Parse & Import Questions
+            </button>
 
             {importMsg && (
               <div className="p-3 rounded-lg bg-white border border-red-200 text-xs font-mono text-red-700">

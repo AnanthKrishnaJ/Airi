@@ -203,7 +203,7 @@ export async function deleteQuestion(id: string) {
   return res.json();
 }
 
-export async function importQuestions(format: 'json' | 'csv' | 'pdf', data: any) {
+export async function importQuestions(format: 'json' | 'csv', data: any) {
   const res = await fetch('/api/questions/import', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

@@ -5,7 +5,6 @@ import dotenv from 'dotenv';
 import { ALL_TOPICS, TOPIC_BY_ID } from './src/data/topics';
 import { db } from './src/server/db';
 import { generateQuestionsBatch } from './src/server/ai-generator';
-import { buildImportedQuestionEntries, extractTextFromPdfBase64 } from './src/server/pdf-import';
 import { Question, DifficultyLevel } from './src/types/quiz';
 
 dotenv.config();
@@ -116,7 +115,7 @@ app.post('/api/questions/generate', async (req, res) => {
 });
 
 // 3. Question Import / Export (MUST be registered before /api/questions/:id)
-app.post('/api/questions/import', async (req, res) => {
+app.post('/api/questions/import', (req, res) => {
   try {
     const { format, data } = req.body;
     let questionsToAdd: Question[] = [];
@@ -194,27 +193,6 @@ app.post('/api/questions/import', async (req, res) => {
           });
         }
       }
-    } else if (format === 'pdf') {
-      const base64 = typeof data === 'string' ? data : data?.base64;
-      if (!base64 || typeof base64 !== 'string') {
-        return res.status(400).json({ error: 'PDF data is missing' });
-      }
-
-      const rawText = await extractTextFromPdfBase64(base64);
-      const parsed = buildImportedQuestionEntries(rawText);
-
-      if (!parsed.length) {
-        return res.status(400).json({ error: 'No valid questions could be extracted from the PDF' });
-      }
-
-      questionsToAdd = parsed.map(item => ({
-        ...item,
-        id: item.id || `imp-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 7)}`,
-        createdAt: now,
-        updatedAt: now,
-        status: 'active',
-        source: 'PDF Upload'
-      } as Question));
     }
 
     if (questionsToAdd.length === 0) {
