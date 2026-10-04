@@ -1,8 +1,0 @@
-{
-  "name": "Airi — made by Ananth",
-  "description": "Airi: High-performance competitive aptitude testing and question generation platform made by Ananth. Features editorial typography, 62+ topics, negative marking, and mobile-optimized progress tracking.",
-  "requestFramePermissions": [],
-  "majorCapabilities": [
-    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
-  ]
-}
