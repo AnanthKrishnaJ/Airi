@@ -1,11 +1,24 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
+import {copyFileSync} from 'node:fs';
 import path from 'path';
 import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
   return {
-    plugins: [react(), tailwindcss()],
+    base: './',
+    plugins: [
+      react(),
+      tailwindcss(),
+      {
+        name: 'copy-standalone-practice-script',
+        apply: 'build',
+        writeBundle({dir}) {
+          const outputDir = dir || path.resolve(__dirname, 'dist');
+          copyFileSync(path.resolve(__dirname, 'script.js'), path.resolve(outputDir, 'script.js'));
+        },
+      },
+    ],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
